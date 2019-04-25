@@ -44,10 +44,10 @@ public:
 	bool operator < (const String &a) const { return cmp(a) == -1; }
 	bool operator == (const String &a) const { return cmp(a) == 0; }
 	bool operator > (const String &a) const { return cmp(a) == 1; }
-	int asint();
-	double asdouble();
-	date asdate();
-	Time asTime();
+	int asint() const ;
+	double asdouble() const;
+	date asdate() const;
+	Time asTime() const;
 };
 
 struct Time {
