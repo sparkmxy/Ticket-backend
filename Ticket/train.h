@@ -57,8 +57,11 @@ struct train {
 
 class trainSystem {
 	bplustree<String,train,4096> B;
-
 public:
+	trainSystem() {
+		B.initialize("trainData", "trainBptFile", "trainAlloc", "trainBptAlloc");
+	}
+
 	void add(const String &id, const String &name, const String catalog,
 		const vector<String> &classes, const vector<station> &V);
 

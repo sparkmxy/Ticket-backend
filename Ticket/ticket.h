@@ -33,7 +33,9 @@ class ticketSystem {
 	void _add(const String &st, const String &id);
 
 public:
-	
+	ticketSystem() {
+		B.initialize("ticketData", "ticketBptFile", "ticketAlloc", "ticketBptAlloc");
+	}
 	void init(trainSystem *_TS) { TS = _TS; }
 
 	void add(const vector<String> &stations, const String &id);

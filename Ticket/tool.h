@@ -12,6 +12,11 @@ using sjtu::vector;
 
 enum TYPE{STRING,DATE,TIME,INT,DOUBLE};
 
+
+class String;
+typedef std::pair<TYPE,String> parameter;
+
+
 class String {
 	static const int SIZE = 40;
 	char s[SIZE+1];
