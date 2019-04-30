@@ -39,13 +39,13 @@
     <ClInclude Include="alloc.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="utility.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="vector.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="bplustree.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utility.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

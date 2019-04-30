@@ -9,11 +9,12 @@ struct date;
 
 
 using sjtu::vector;
+class String;
 
 enum TYPE{STRING,DATE,TIME,INT,DOUBLE};
+typedef std::pair<TYPE, String> token;
 
 
-class String;
 typedef std::pair<TYPE,String> parameter;
 
 

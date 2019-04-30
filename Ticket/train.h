@@ -5,6 +5,7 @@
 */
 #include "bplustree.hpp"
 #include "tool.h"
+#include "log.h"
 
 static const int maxDate = 31;
 static const int maxClassN = 5;
@@ -14,7 +15,7 @@ struct station {
 	String name;
 	Time arrive, leave;
 	int num[maxDate][maxClassN]; // 2018-06-01 到2018-06-30每一天的余票数
-	double price;
+	double price[maxClassN];
 
 	void init(int classN) {
 		for (int i = 0; i < maxDate; i++)
@@ -32,7 +33,8 @@ struct train {
 	static const int maxN = 60;
 	int n; //经过站的数量
 	int classN; //座位类别的数量
-	String ID, name, catalog, seatClass[maxClassN];
+	String ID, name, catalog;
+	String seatClass[maxClassN];
 	station s[maxN];
 	bool onsale;
 
@@ -74,7 +76,9 @@ public:
 	bool modify(const String &id, const String &name, const String catalog,
 		const vector<String> &classes, const vector<station> &V);
 
-	void modifyTicket(const String &id, const String &Station, const String &cls, int d, int delta);
+	bool modifyTicket(purchaseLog *log, const vector<token> &V,int f = 1);
 
-	
+	void clear() {
+		B.clear();
+	}
 };

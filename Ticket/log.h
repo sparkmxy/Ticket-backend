@@ -2,15 +2,24 @@
 
 #include "bplustree.hpp"
 #include "tool.h"
+#include "train.h"
+#include "exceptions.h"
 
 class purchaseLog;
 
-class keyRecord {
-	friend class purchaseLog;
-	String userID, Date, catalog, trainID, from, to;
-public:
+struct keyInfo {
+	int userID;
+	String catalog, trainID, from, to;
+	date Date;
 
-	bool operator < (const keyRecord &k) const {
+	keyInfo(const int &u, const date &d, const String &c,
+		const String &t, const String &_from, const String &_to)
+		:userID(u), Date(d), catalog(c), trainID(t), from(_from), to(_to) {}
+	
+	keyInfo(const int &u, const date &d, const String &c)
+		:userID(u), Date(d), catalog(c) {}
+
+	bool operator < (const keyInfo &k) const {
 		if (userID != k.userID) return userID < k.userID;
 		if (Date!= k.Date) return Date < k.Date;
 		if (catalog != k.catalog) return catalog < k.catalog;
@@ -20,27 +29,47 @@ public:
 	}
 };
 
-class record :public keyRecord {
+struct Detail{
 	static const int maxClassN = 5;
-	friend class purchaseLog;
 	Time leave, arrive;
-	int num[maxClassN];
-public:
+	String seatClass[maxClassN];
+	int classN,num[maxClassN];
 
+	Detail() = default;
+	Detail(const train &T, const String from,const String to, const String &seatCls, const int &quantity) {
+		classN = T.classN;
+		for (int i = 0; i < classN; i++) 
+			seatClass[i] = T.seatClass[i],num[i] = 0;
+		num[T.getClassID(seatCls)] = quantity;
+		leave = T.s[T.getStationID(from)].leave;
+		arrive = T.s[T.getStationID(to)].arrive;
+	}
+	void modify(const int &cls, const int &delta) {
+		num[cls] += delta;
+	}
+
+	bool isZero() {
+		for (int i = 0; i < classN; i++)
+			if (num[i]) return false;
+		return true;
+	}
 };
 
+typedef std::pair<keyInfo, Detail> record;
+
 class purchaseLog {
-	bplustree<keyRecord, record, 4096> B;
-	static bool showOption;
+	bplustree<keyInfo, Detail, 4096> B;
+
 public:
 	purchaseLog() {
 		B.initialize("logData","logBptFile","logAlloc","logBptAlloc");
 	}
 
-	static void showReturned() { showOption = true; }
-	void add();
-	void refund();
-	vector<record> query();
-
+	void buy(const keyInfo &info,const train &T,const String &seatClass,const int &n);
+	void refund(const keyInfo &info,const train &T,const String &seatClass,const int &n);
+	vector<record> query(const vector< std::pair<TYPE, String> > &V) const;
+	void clear() {
+		B.clear();
+	}
 };
 

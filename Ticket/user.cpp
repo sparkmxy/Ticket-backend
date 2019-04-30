@@ -1,5 +1,10 @@
 #include "user.h"
 
+std::ostream &operator << (std::ostream &os, const user &u) {
+	os << u.name << ' ' << u.email << ' ' << u.phone << ' ' << static_cast<int>(u.type) << endl;
+	return os;
+}
+
 int userSystem::add(const vector<parameter> &V) {
 	if (V.size() != 4) return false;
 	for (int i = 0; i < 4; i++) if (V[i].first != STRING) return false;

@@ -1,5 +1,18 @@
 #include "ticket.h"
 
+std::ostream &operator << (std::ostream &os, const Seat &s) {
+	os << s.type << ' ' << s.num << ' ' << s.price;
+	return os;
+}
+
+std::ostream &operator << (std::ostream &os, const ticket &t) {
+	os << t.tID << ' ' << t.from << ' ' << t.Date << ' ' << t.leave
+		<< t.to << ' ' << t.arrive << ' ';
+	for (int i = 0; i < t.seat.size(); i++)
+		os << t.seat[i] << ' ';
+	return os;
+}
+
 bool cmpByFirstDim(const std::pair<String,String> &lhs, const std::pair<String,String>& rhs) {
 	return lhs.first < rhs.first;
 }
@@ -29,39 +42,44 @@ void ticketSystem::add(const vector<String> &stations, const String &id) {
 		_add(stations[i],id);
 }
 
-vector<ticket> ticketSystem::query(const String &from, const String &to,const date &d) {
-	vector<String> V = B.listof(from, cmpByFirstDim);
-	vector<String> U = B.listof(from, cmpByFirstDim);
+vector<ticket> ticketSystem::query(const String &from, const String &to,
+	const date &d,const String &catalog) {
+	auto  V = B.listof(std::make_pair(from,String()), cmpByFirstDim);
+	auto  U = B.listof(std::make_pair(to, String()), cmpByFirstDim);
 	vector<String> C;
 	int i = 0, j = 0;
 	while (i <= V.size()) {
-		while (U[j] < V[i] && j < U.size()) j++;
+		while (U[j].second < V[i].second && j < U.size()) j++;
 		if (j == U.size()) break;
-		if (V[i] == U[j]) 
-			C.push_back(V[i]);
+		if (V[i].second == U[j].second) 
+			C.push_back(V[i].second);
 		i++;
 	}
 	vector<ticket> ret;
 	for (i = 0; i < C.size(); i++) {
 		train t = TS->query(C[i]).second;
-		if (t.ok(from, to)) ret.push_back(ticket(t,from,to,d));
+		if (t.ok(from, to) && t.catalog == catalog) ret.push_back(ticket(t,from,to,d));
 	}
 	return ret;
 }
 
-ticketPair ticketSystem::transfer(const String &from, const String &to, const date &d) {
-	vector<String> V = B.listof(from, cmpByFirstDim);
-	vector<String> U = B.listof(from, cmpByFirstDim);
+ticketPair ticketSystem::transfer(const String &from, const String &to,
+	const date &d,const String &catalog) {
+	auto  V = B.listof(std::make_pair(from, String()), cmpByFirstDim);
+	auto  U = B.listof(std::make_pair(to, String()), cmpByFirstDim);
 	ticketPair ret;
-	for (int i = 0; i < V.size(); i++)
+	for (int i = 0; i < V.size(); i++) {
+		train T1 = TS->query(V[i].second).second;
+		if (T1.catalog != catalog) continue;
 		for (int j = 0; j < U.size(); j++) {
-			train T1 = TS->query(V[i]).second;
-			train T2 = TS->query(U[j]).second;
-			auto check = checkTransfer(T1, T2, from, to);
+			train T2 = TS->query(U[j].second).second;
+			if (T2.catalog != catalog) continue;
+				auto check = checkTransfer(T1, T2, from, to);
 			if (check.first)
-				ret = myMin(ret, 
-					ticketPair(ticket(T1,from,check.second,d),ticket(T2,check.second,to,d))
-					);
+				ret = myMin(ret,
+					ticketPair(ticket(T1, from, check.second, d), ticket(T2, check.second, to, d))
+				);
 		}
+	}
 	return ret;
 }
